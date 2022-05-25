@@ -21,24 +21,6 @@ function App() {
     setPositions(startPositions);
   }, []);
 
-  const getBounds = () => {
-    const xPositions = positions.map(({ x }) => x);
-    const yPositions = positions.map(({ y }) => y);
-    const leftBound = Math.min(...xPositions, 0);
-    const rightBound = Math.max(...xPositions, 0);
-    const topBound = Math.max(...yPositions, 0);
-
-    const bottomBound = Math.max(...yPositions, 0);
-    const maxDistance = Math.max(
-      Math.abs(leftBound),
-      Math.abs(rightBound),
-      Math.abs(topBound),
-      Math.abs(bottomBound)
-    );
-
-    return { leftBound, rightBound, topBound, bottomBound, maxDistance };
-  };
-
   useEffect(() => {
     if (canvas.current) {
       // show top left pixel
@@ -47,28 +29,36 @@ function App() {
         H = ctx.canvas.height;
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, W, H);
-      const { maxDistance } = getBounds();
+      const xPositions = positions.map(({ x }) => x);
+      const yPositions = positions.map(({ y }) => y);
+      const leftBound = Math.min(...xPositions, 0);
+      const rightBound = Math.max(...xPositions, 0);
+      const topBound = Math.max(...yPositions, 0);
+
+      const bottomBound = Math.max(...yPositions, 0);
+      const maxDistance = Math.max(
+        Math.abs(leftBound),
+        Math.abs(rightBound),
+        Math.abs(topBound),
+        Math.abs(bottomBound)
+      );
       // canvas height -> 400px -> max 200px either way
       // every time over 200 scale the pixels
       const distanceModulo = Math.floor(maxDistance / (W / 2));
       const scaleFactor = distanceModulo === 0 ? 3 : 1 / (distanceModulo + 1);
-      console.log(
-        distanceModulo,
-        scaleFactor,
-        maxDistance / (W / 2),
-        maxDistance,
-        isRunning
-      );
+      console.log(maxDistance);
 
       ctx.setTransform(1, 0, 0, 1, W / 2, H / 2); // moves the origin to the center of
       // the canvas
       if (isRunning && maxDistance > 400) {
-        nextCycle();
+        setTimeout(() => {
+          nextCycle();
+        }, 0);
       } else {
         setIsRunning(false);
       }
     }
-  }, [positions]);
+  }, [positions, isRunning]);
 
   // draw squares on canvas
   positions.forEach((position) => {
@@ -110,8 +100,8 @@ function App() {
       </div>
       <canvas
         ref={canvas}
-        height="400px"
-        width="400px"
+        height="600px"
+        width="600px"
         style={{ border: '1px solid black' }}
       ></canvas>
     </div>
